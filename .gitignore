@@ -1,5 +1,4 @@
 my_fungi_classification_app/.vercel
 # Ignore node_modules directory
 my_fungi_classification_app/node_modules/
-# Ignore model directory
-my_fungi_classification_app/model/model.h5
+

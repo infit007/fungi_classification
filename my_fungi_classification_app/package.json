@@ -1,0 +1,13 @@
+{
+  "name": "your-fungi-classification-app",
+  "version": "1.0.0",
+  "description": "Your Fungi Classification Web App",
+  "main": "app.py",
+  "scripts": {
+    "build:css": "tailwindcss build static/css/styles.css -o static/css/styles.css",
+    "start": "python app.py"
+  },
+  "devDependencies": {
+    "tailwindcss": "^2.2.19"
+  }
+}

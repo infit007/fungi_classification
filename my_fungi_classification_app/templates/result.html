@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Fungi Classification Result</title>
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css"
+    />
+    <style>
+      /* Add your additional styles here if needed */
+    </style>
+  </head>
+  <body class="bg-gray-100 font-sans">
+    <div class="container mx-auto my-5">
+      <div class="card p-8 mb-4">
+        <h2 class="title mb-4 text-center">Fungi Classification Result</h2>
+
+        <!-- Display the fungi type -->
+        <div class="text-center">
+          <p>Fungi Type: {{ fungi_type }}</p>
+        </div>
+
+        <!-- Back to Home button -->
+        <!-- Back to Home button with custom styles -->
+        <div class="text-center mt-4">
+          <a
+            href="/"
+            class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-700"
+            >Back to Home</a
+          >
+        </div>  
+      </div>
+    </div>
+  </body>
+</html>

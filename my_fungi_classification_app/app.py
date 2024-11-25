@@ -5,7 +5,7 @@ from tensorflow.keras.preprocessing import image
 from tensorflow.keras.applications.mobilenet_v2 import preprocess_input
 import numpy as np
 from werkzeug.middleware.proxy_fix import ProxyFix
-from urllib.parse import quote  # Replacement for url_quote
+from urllib.parse import quote  # Safe filename handling
 
 app = Flask(__name__)
 
@@ -48,7 +48,8 @@ def index():
 
         if uploaded_file.filename != '':
             # Save the uploaded file to the 'uploads' folder
-            image_path = os.path.join('uploads', quote(uploaded_file.filename))  # Ensure safe filename
+            safe_filename = quote(uploaded_file.filename)  # Ensure safe filename
+            image_path = os.path.join('uploads', safe_filename)
             uploaded_file.save(image_path)
 
             # Classify the fungi and get the result

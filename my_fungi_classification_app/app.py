@@ -4,6 +4,8 @@ from tensorflow import keras
 from tensorflow.keras.preprocessing import image
 from tensorflow.keras.applications.mobilenet_v2 import preprocess_input
 import numpy as np
+from werkzeug.middleware.proxy_fix import ProxyFix
+from urllib.parse import quote  # Replacement for url_quote
 
 app = Flask(__name__)
 
@@ -14,6 +16,9 @@ model_directory = os.path.join(os.path.dirname(__file__), 'model', 'model.h5')
 model = keras.models.load_model(model_directory)
 
 def classify_fungi(image_path):
+    """
+    Classify the fungi type based on the uploaded image.
+    """
     # Load and preprocess the image for prediction
     img = image.load_img(image_path, target_size=(224, 224))  # Resize to 224x224
     img_array = image.img_to_array(img)  # Convert image to numpy array
@@ -34,13 +39,16 @@ def classify_fungi(image_path):
 
 @app.route('/', methods=['GET', 'POST'])
 def index():
+    """
+    Main route for the application. Allows users to upload an image for classification.
+    """
     if request.method == 'POST':
         # Check if an image file was uploaded
         uploaded_file = request.files['image']
 
         if uploaded_file.filename != '':
             # Save the uploaded file to the 'uploads' folder
-            image_path = os.path.join('uploads', uploaded_file.filename)
+            image_path = os.path.join('uploads', quote(uploaded_file.filename))  # Ensure safe filename
             uploaded_file.save(image_path)
 
             # Classify the fungi and get the result
@@ -54,7 +62,6 @@ def index():
 
 if __name__ == "__main__":
     # Enable support for Vercel's proxy
-    from werkzeug.middleware.proxy_fix import ProxyFix
     app.wsgi_app = ProxyFix(app.wsgi_app)
 
     # Create the 'uploads' directory if it doesn't exist

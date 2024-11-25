@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, send_from_directory
+from flask import Flask, render_template, request
 import os
 from tensorflow import keras
 from tensorflow.keras.preprocessing import image
@@ -8,7 +8,7 @@ import numpy as np
 app = Flask(__name__)
 
 # Path to the model (Ensure you have model.h5 after conversion)
-model_directory = './model/model.h5'  # Use relative path for deployment
+model_directory = os.path.join(os.path.dirname(__file__), 'model', 'model.h5')
 
 # Load the pre-trained model
 model = keras.models.load_model(model_directory)
@@ -39,8 +39,8 @@ def index():
         uploaded_file = request.files['image']
 
         if uploaded_file.filename != '':
-            # Save the uploaded file to the 'static/uploads' folder
-            image_path = os.path.join('static', 'uploads', uploaded_file.filename)
+            # Save the uploaded file to the 'uploads' folder
+            image_path = os.path.join('uploads', uploaded_file.filename)
             uploaded_file.save(image_path)
 
             # Classify the fungi and get the result
@@ -52,13 +52,13 @@ def index():
     # Render the index page for GET request or after uploading an image
     return render_template('index.html')
 
-@app.route('/static/uploads/<filename>')
-def uploaded_file(filename):
-    return send_from_directory(os.path.join(app.root_path, 'static/uploads'), filename)
+if __name__ == "__main__":
+    # Enable support for Vercel's proxy
+    from werkzeug.middleware.proxy_fix import ProxyFix
+    app.wsgi_app = ProxyFix(app.wsgi_app)
 
-if __name__ == '__main__':
-    # Ensure the 'static/uploads' directory exists
-    os.makedirs(os.path.join('static', 'uploads'), exist_ok=True)
+    # Create the 'uploads' directory if it doesn't exist
+    os.makedirs('uploads', exist_ok=True)
 
-    # Run the Flask app in debug mode
-    app.run(debug=True)
+    # Run the Flask app on the specified host and port
+    app.run(host="0.0.0.0", port=5000)

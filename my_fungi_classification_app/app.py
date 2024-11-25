@@ -7,43 +7,54 @@ import numpy as np
 
 app = Flask(__name__)
 
-# Load pre-trained model
-model_directory = r'C:\Users\jsunt\Downloads\Defungi Project\Model'
+# Path to the model (Ensure you have model.h5 after conversion)
+model_directory = r'C:\Users\jsunt\Downloads\fungi_classification\model\model.h5'
+
+# Load the pre-trained model
 model = keras.models.load_model(model_directory)
 
 def classify_fungi(image_path):
-    img = image.load_img(image_path, target_size=(224, 224))
-    img_array = image.img_to_array(img)
-    img_array = np.expand_dims(img_array, axis=0)
-    img_array = preprocess_input(img_array)
+    # Load and preprocess the image for prediction
+    img = image.load_img(image_path, target_size=(224, 224))  # Resize to 224x224
+    img_array = image.img_to_array(img)  # Convert image to numpy array
+    img_array = np.expand_dims(img_array, axis=0)  # Add batch dimension
+    img_array = preprocess_input(img_array)  # Preprocess image for MobileNetV2
 
+    # Make prediction using the model
     predictions = model.predict(img_array)
 
-    # Assume that predictions is an array containing the probabilities for each class
+    # Get the class index of the highest predicted class
     class_index = np.argmax(predictions)
+    
+    # Mapping class index to corresponding fungi type
     fungi_types = ['H1', 'H2', 'H3', 'H5', 'H6']
     fungi_type = fungi_types[class_index]
 
     return fungi_type
 
-# Return a tuple containing result and fungi type
-
 @app.route('/', methods=['GET', 'POST'])
 def index():
     if request.method == 'POST':
+        # Check if an image file was uploaded
         uploaded_file = request.files['image']
 
         if uploaded_file.filename != '':
+            # Save the uploaded file to the 'uploads' folder
             image_path = os.path.join('uploads', uploaded_file.filename)
             uploaded_file.save(image_path)
 
+            # Classify the fungi and get the result
             fungi_type = classify_fungi(image_path)
 
-            # Pass the fungi type to the result page
+            # Pass the result to the result page
             return render_template('result.html', fungi_type=fungi_type)
 
+    # Render the index page for GET request or after uploading an image
     return render_template('index.html')
 
 if __name__ == '__main__':
+    # Create the 'uploads' directory if it doesn't exist
     os.makedirs('uploads', exist_ok=True)
+
+    # Run the Flask app in debug mode
     app.run(debug=True)

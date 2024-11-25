@@ -1,5 +1,6 @@
-from flask import Flask, render_template, request
 import os
+import tensorflow as tf
+from flask import Flask, render_template, request, jsonify
 from tensorflow import keras
 from tensorflow.keras.preprocessing import image
 from tensorflow.keras.applications.mobilenet_v2 import preprocess_input
@@ -7,6 +8,13 @@ import numpy as np
 from werkzeug.middleware.proxy_fix import ProxyFix
 from urllib.parse import quote  # Safe filename handling
 
+# Disable GPU usage by setting the CUDA_VISIBLE_DEVICES environment variable to -1
+os.environ['CUDA_VISIBLE_DEVICES'] = '-1'
+
+# Suppress TensorFlow logging for warnings and errors
+os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'
+
+# Initialize the Flask app
 app = Flask(__name__)
 
 # Path to the model (Ensure you have model.h5 after conversion)
@@ -60,6 +68,19 @@ def index():
 
     # Render the index page for GET request or after uploading an image
     return render_template('index.html')
+
+@app.route('/check-tensorflow', methods=['GET'])
+def check_tensorflow():
+    """
+    Check if TensorFlow is using the GPU and list available devices.
+    """
+    is_gpu = tf.test.is_gpu_available()
+    devices = tf.config.list_physical_devices()
+
+    return jsonify({
+        "is_gpu_available": is_gpu,
+        "devices": [str(device) for device in devices]
+    })
 
 if __name__ == "__main__":
     # Enable support for Vercel's proxy
